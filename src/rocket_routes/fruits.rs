@@ -52,7 +52,10 @@ pub async fn update_fruit(
     FruitRepository::update(&mut db, fruit_id, update_fruit.into_inner())
         .await
         .map(|fruits| Custom(Status::Accepted, json!(fruits)))
-        .map_err(|e| server_error(e.into()))
+        .map_err(|e| match e {
+            diesel::result::Error::NotFound => Custom(Status::NotFound, json!("Not found")),
+            _ => server_error(e.into()),
+        })
 }
 
 #[rocket::delete("/fruits/<fruit_id>")]

@@ -141,6 +141,26 @@ fn test_update_fruit() {
 }
 
 #[test]
+fn test_update_fruit_fail() {
+    // Setup
+    let client = Client::new();
+    let fruit_value = common::create_test_fruit(&client);
+
+    // Test
+    let response = client
+        .put(format!("http://127.0.0.1:8000/fruits/99999",))
+        .json(&json!({
+            "price": 4.5
+        }))
+        .send()
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    // Cleanup
+    common::delete_test_fruit(&client, fruit_value)
+}
+
+#[test]
 fn test_delete_fruit() {
     let client = Client::new();
     let fruit_value = common::create_test_fruit(&client);
